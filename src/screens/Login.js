@@ -20,8 +20,18 @@ const Login = ({navigation}) => {
   const { username, token, error, loading } = useSelector(state => state.authReducer);
   const dispatch = useDispatch();
 
+  const checkToken = () => {
+    if (token != null) {
+      navigation.navigate('Main');
+    }
+  }
+
+  React.useEffect(() => {
+    checkToken();
+  }, [])
+
   const [data, setData] = React.useState({
-    username: username,
+    username: '',
     password: '',
     check_textInputChange: false,
     secureTextEntry: true
@@ -62,9 +72,7 @@ const Login = ({navigation}) => {
       Alert.alert('Atención!', 'Escriba su usuario y contraseña.')
     } else {
       dispatch(authLogin(data.username, data.password));
-      if (token != null) {
-        navigation.navigate('Main');
-      }
+      checkToken();
     }
   }
 
@@ -116,7 +124,7 @@ const Login = ({navigation}) => {
 
 export default Login;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create ({
   container: {
     flex: 1, 
     backgroundColor: '#009387'
@@ -183,4 +191,4 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: 'bold'
   }
-});
+})

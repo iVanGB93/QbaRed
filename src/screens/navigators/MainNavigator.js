@@ -21,7 +21,9 @@ export default function MainNavigator() {
         try {   
             const username = await AsyncStorage.getItem('username');
             const token = await AsyncStorage.getItem('token');
-            dispatch(authSuccess(username, token));
+            if (token != null && username != null) {
+                dispatch(authSuccess(username, token));
+            };
         } catch (e) {
             console.log(e)
         }
@@ -41,7 +43,7 @@ export default function MainNavigator() {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Main" component={BottomNavigator} />
-            <Stack.Screen name="ChatRoom" component={ChatRoom} />
+            <Stack.Screen screenOptions={{headerShown: true}} name="ChatRoom" component={ChatRoom} />
             </Stack.Navigator>
         </NavigationContainer>
     );

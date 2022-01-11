@@ -14,7 +14,7 @@ const updateChatDetails = (state, action) => {
     });
 };
 
-function ChatReducer (state = initialState, action) {
+function chatReducer (state = initialState, action) {
     switch (action.type) {
         case actionTypes.UPDATE_CHAT_DETAILS:
             return updateChatDetails(state, action);       
@@ -23,4 +23,4 @@ function ChatReducer (state = initialState, action) {
     }
 };
   
-export default ChatReducer;
+export default chatReducer;

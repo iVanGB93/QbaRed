@@ -1,6 +1,4 @@
 
-
-
 class WebSocketService {
     static instance = null;
     callbacks = {};
@@ -16,14 +14,13 @@ class WebSocketService {
         this.socketRef = null;
     }
 
-    connect() {
-        const path = `ws://172.16.0.10:8000/ws/chat/usuarios/`;
+    connect(chatId) {
+        const path = `ws://172.20.24.10:8000/ws/chat/${ chatId }/`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WEBSOCKET OPEN");
         };
         this.socketRef.onmessage = e => {
-            console.log(e.data);
             this.socketNewMessage(e.data);
         };
         this.socketRef.onerror = e => {
@@ -31,7 +28,7 @@ class WebSocketService {
         };
         this.socketRef.onclose = () => {
             console.log("WebSocket closed let's reopen");
-            this.connect();
+            /* this.connect(chatId); */
         };
     }
 
@@ -43,16 +40,19 @@ class WebSocketService {
         const parsedData = JSON.parse(data);
         const command = parsedData.accion;
         if (Object.keys(this.callbacks).length === 0) {
-          return;
+            return;
         }
         if (command === "chats") {
-          this.callbacks[command](parsedData.chats_list);
+            this.callbacks[command](parsedData.chats_list);
         }
-        if (command === "new_message") {
-          this.callbacks[command](parsedData.message);
+        if (command === "mensajes") {
+            this.callbacks[command](parsedData.mensajes);
+        }
+        if (command === "mensaje_nuevo") {
+            this.callbacks[command](parsedData.mensaje);
         }
     }
-
+    
     chats_list(username) {
         this.sendMessage({
             'accion': 'chats',
@@ -62,9 +62,20 @@ class WebSocketService {
         })
     }
 
-    addCallbacks(chats_list, newMessageCallback) {
+    messages(username, chat_id) {
+        this.sendMessage({
+            'accion': 'mensajes',
+            'data': {
+                'usuario': username,
+                'id': chat_id,
+            }
+        })
+    }
+
+    addCallbacks(chats_list, mensajes, mensaje) {
         this.callbacks["chats"] = chats_list;
-        this.callbacks["new_message"] = newMessageCallback;
+        this.callbacks["mensajes"] = mensajes;
+        this.callbacks["mensaje_nuevo"] = mensaje;
     }
 
     sendMessage(data) {

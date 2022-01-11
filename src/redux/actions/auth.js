@@ -27,7 +27,6 @@ const removeData = async () => {
     try {
         await AsyncStorage.removeItem("token");
         await AsyncStorage.removeItem("username");
-        await AsyncStorage.removeItem("expirationDate");
     } catch (e) {
         dispatch(authFail(e))
     }
@@ -40,51 +39,80 @@ export const logout = () => {
     };
 };
 
-export const checkAuthTimeout = expirationTime => {
-    return dispatch => {
-      setTimeout(() => {
-        dispatch(logout());
-      }, expirationTime * 1000);
-    };
-};
-
 const saveData = async (username, token, expirationDate) => {
     try {   
         await AsyncStorage.setItem('username', username);
         await AsyncStorage.setItem('token', token);
-        await AsyncStorage.setItem('expirationDate', expirationDate);
     } catch (e) {
         console.log(e)
     }
 }
 
+// Example POST method implementation:
+async function postData(url = '', data = {}) {
+    // Default options are marked with *
+    const response = await fetch(url, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+  }
+  
+  
+  
+
 export const authLogin = (username, password) => {
     return dispatch => {
         dispatch(authStart());
-        console.log("EMPEZANDO");    
-        const token = password
+        /* const token = password
         const expirationDate = 'new Date(new Date().getTime() + 3600 * 1000)';
         saveData(username, token, expirationDate);
-        dispatch(authSuccess(username, token));
+        dispatch(authSuccess(username, token)); */
         /* axios
-            .post('http://172.16.0.10/api/users/auth/login/', {
+            .post('http://172.16.0.10:80/api/users/auth/login/', {
             username: username,
             password: password
             })
             .then(res => {
-            console.log(res)
-            const token = res.data.key;
-            const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-            localStorage.setItem("token", token);
-            localStorage.setItem("username", username);
-            localStorage.setItem("expirationDate", expirationDate);
-            dispatch(authSuccess(username, token));
-            dispatch(checkAuthTimeout(3600));
-            console.log(username, token);
+                console.log(res);
+                const token = res.data.key;
+                const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
+                localStorage.setItem("token", token);
+                localStorage.setItem("username", username);
+                localStorage.setItem("expirationDate", expirationDate);
+                dispatch(authSuccess(username, token));
+                dispatch(checkAuthTimeout(3600));
+                console.log(username, token);
             })
             .catch(err => {
-            dispatch(authFail(err));
+                console.log(err);
+                dispatch(authFail(err));
             }); */
+        postData('http://172.20.24.10:8000/api/users/auth/login/', { username: username, password: password })
+        .then(data => {
+            console.log(data); // JSON data parsed by `data.json()` call
+            const token = data.key;
+            if (token) {
+                saveData(username, token);
+                dispatch(authSuccess(username, token));
+            } else {
+                dispatch(authFail(error));
+                console.log(error);
+            }   
+        })
+        .catch((error) => {
+            dispatch(authFail(error));
+            console.log("catch error ", + error);
+        });
     };
 };
 
@@ -119,33 +147,21 @@ const getData = async () => {
     try {   
         const username = await AsyncStorage.getItem('username');
         const token = await AsyncStorage.getItem('token');
-        const expirationDate = await AsyncStorage.getItem('expirationDate');
-        return [username, token, expirationDate]
+        return [username, token]
     } catch (e) {
         console.log(e)
     }
 }
 
-export const authCheckState = async () => {
+export const authCheckState = () => {
     return dispatch => {
         const data = getData();
         const username = data[0];
         const token = data[1];
-        const expirationDate = data[2];
         if (token === null) {
             dispatch(logout());
-        } else {
-            const expirationDate = new Date(expirationDate);
-            if (expirationDate <= new Date()) {
-                dispatch(logout());
-            } else {
-                dispatch(authSuccess(username, token));
-                dispatch(
-                    checkAuthTimeout(
-                    (expirationDate.getTime() - new Date().getTime()) / 1000
-                    )
-                );
-            }
+        } else {             
+            dispatch(authSuccess(username, token));
         }
     };
 };
