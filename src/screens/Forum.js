@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, StatusBar } from 'react-native';
 
 export default function Forum () {
   return (
     <View style={styles.container}>
-      <Text>FORUM SCREEN!</Text>
+      <StatusBar backgroundColor='#09dd' barStyle='light-content' />
+      <ActivityIndicator size="large" color='#fff2' />
     </View>
   );
 }

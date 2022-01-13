@@ -1,3 +1,4 @@
+import { SOCKET_URL } from "./setting";
 
 class WebSocketService {
     static instance = null;
@@ -15,7 +16,7 @@ class WebSocketService {
     }
 
     connect(chatId) {
-        const path = `ws://172.20.24.10:8000/ws/chat/${ chatId }/`;
+        const path = `${ SOCKET_URL }/ws/chat/${ chatId }/`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WEBSOCKET OPEN");

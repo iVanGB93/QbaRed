@@ -30,10 +30,10 @@ export default function BottomNavigator() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}>
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Forum" component={Forum} />
-      <Tab.Screen name="Portal" component={Portal} />
-      <Tab.Screen name="Chat" component={Chat} />
+      <Tab.Screen name="Home" component={Home} options={{tabBarColor: '#009d93'}}/>
+      <Tab.Screen name="Forum" component={Forum} options={{tabBarColor: '#09dd'}}/>
+      <Tab.Screen name="Portal" component={Portal} options={{tabBarColor: '#d02860'}}/>
+      <Tab.Screen name="Chat" component={Chat} options={{tabBarColor: '#694fad'}}/>
     </Tab.Navigator>   
   );
 };

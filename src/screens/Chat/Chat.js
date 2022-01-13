@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import Contactos from './Contactos';

@@ -1,17 +1,12 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from 'react-native';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { authSuccess, logout } from '../redux/actions/auth';
-import { updateChatDetails } from '../redux/actions/chat';
+import { logout } from '../redux/actions/auth';
 
 export default function Home({navigation}) {
 
   const { username, token } = useSelector(state => state.authReducer);
   const dispatch = useDispatch();
-
-  const salir = () => {
-    dispatch(logout());
-  }
 
   const probando = () => {
     console.log(username, token)
@@ -19,36 +14,57 @@ export default function Home({navigation}) {
 
   return (
     <View style={styles.container}>
+    <StatusBar backgroundColor='#009d93' barStyle='light-content' />
       { token ?
-      <View style={styles.container}>
-      <TouchableOpacity style={styles.container}
-        onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.textSign}>Hola {username}, token { token }</Text> 
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.container}
-        onPress={salir}>
-        <Text style={styles.textSign}>Salir</Text> 
-      </TouchableOpacity>
+      <View>     
+        <Text style={styles.text}>Hola {username}</Text>
+        <View style={styles.button}>
+          <TouchableOpacity style={styles.touchable}
+            onPress={() => dispatch(logout())}>
+            <Text style={styles.text}>Salir</Text> 
+          </TouchableOpacity>
+        </View>
       </View>
       :
-      <TouchableOpacity style={styles.container}
-        onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.textSign}>ENTRAR!</Text>
-      </TouchableOpacity>
+      <View style={styles.button}>
+        <TouchableOpacity style={styles.touchable}
+          onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.text}>ENTRAR!</Text>
+        </TouchableOpacity>
+      </View>
       }      
-      <TouchableOpacity style={styles.container}
-        onPress={probando}>
-        <Text style={styles.textSign}>Probando!</Text>
-      </TouchableOpacity>      
+      <View style={styles.button}>
+        <TouchableOpacity style={styles.touchable}
+          onPress={probando}>
+          <Text style={styles.text}>Probando!</Text>
+        </TouchableOpacity>      
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 3,
+    flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    padding: 10
+  },
+  text: {
+    fontSize: 20,
+    alignItems: 'center',
+    marginTop: 20
+  },
+  button: {
+    alignItems: 'center',
+    marginTop: 50
+  },
+  touchable: {
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#009d93',
+    borderRadius: 10
   },
 });

@@ -24,26 +24,23 @@ export default function MainNavigator() {
             if (token != null && username != null) {
                 dispatch(authSuccess(username, token));
             };
+            return token
         } catch (e) {
             console.log(e)
         }
     }
 
-    React.useEffect(() => {
-        getData();
-    }, [])
-
-    const token = useSelector(state => state.authReducer);
+    const token = getData();
 
     return (
         <NavigationContainer>
             <Stack.Navigator
             initialRouteName={ token ? 'Main' : 'Login'}
             screenOptions={{headerShown: false}}>
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Main" component={BottomNavigator} />
-            <Stack.Screen screenOptions={{headerShown: true}} name="ChatRoom" component={ChatRoom} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Main" component={BottomNavigator} />
+                <Stack.Screen name="ChatRoom" component={ChatRoom} />
             </Stack.Navigator>
         </NavigationContainer>
     );

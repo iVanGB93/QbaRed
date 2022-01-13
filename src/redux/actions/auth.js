@@ -65,41 +65,16 @@ async function postData(url = '', data = {}) {
       body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     return response.json(); // parses JSON response into native JavaScript objects
-  }
+}
   
   
   
 
 export const authLogin = (username, password) => {
     return dispatch => {
-        dispatch(authStart());
-        /* const token = password
-        const expirationDate = 'new Date(new Date().getTime() + 3600 * 1000)';
-        saveData(username, token, expirationDate);
-        dispatch(authSuccess(username, token)); */
-        /* axios
-            .post('http://172.16.0.10:80/api/users/auth/login/', {
-            username: username,
-            password: password
-            })
-            .then(res => {
-                console.log(res);
-                const token = res.data.key;
-                const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-                localStorage.setItem("token", token);
-                localStorage.setItem("username", username);
-                localStorage.setItem("expirationDate", expirationDate);
-                dispatch(authSuccess(username, token));
-                dispatch(checkAuthTimeout(3600));
-                console.log(username, token);
-            })
-            .catch(err => {
-                console.log(err);
-                dispatch(authFail(err));
-            }); */
+        dispatch(authStart());       
         postData('http://172.20.24.10:8000/api/users/auth/login/', { username: username, password: password })
         .then(data => {
-            console.log(data); // JSON data parsed by `data.json()` call
             const token = data.key;
             if (token) {
                 saveData(username, token);
@@ -118,30 +93,26 @@ export const authLogin = (username, password) => {
 
 
 
-/* export const authSignup = (username, email, password1, password2) => {
+export const authSignup = (username, email, password1, password2) => {
     return dispatch => {
-      dispatch(authStart());
-      axios
-        .post(`${HOST_URL}/rest-auth/registration/`, {
-          username: username,
-          email: email,
-          password1: password1,
-          password2: password2
+        dispatch(authStart());
+        postData('http://172.20.24.10:8000/api/users/auth/registration/', { username: username, password1: password1, password2: password2, email: email })
+        .then(data => {
+            const token = data.key;
+            if (token) {
+                saveData(username, token);
+                dispatch(authSuccess(username, token));
+            } else {
+                dispatch(authFail(error));
+                console.log(error);
+            } 
         })
-        .then(res => {
-          const token = res.data.key;
-          const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-          localStorage.setItem("token", token);
-          localStorage.setItem("username", username);
-          localStorage.setItem("expirationDate", expirationDate);
-          dispatch(authSuccess(username, token));
-          dispatch(checkAuthTimeout(3600));
-        })
-        .catch(err => {
-          dispatch(authFail(err));
+        .catch((error) => {
+            dispatch(authFail(error));
+            console.log("catch error ", + error);
         });
     };
-}; */
+};
 
 const getData = async () => {
     try {   

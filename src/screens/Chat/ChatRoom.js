@@ -1,9 +1,8 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { View } from 'react-native';
 import { connect } from "react-redux";
-import { useSelector, useDispatch } from 'react-redux';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import WebSocketInstance from '../../websocket';
 
@@ -41,7 +40,7 @@ class ChatRoom extends React.Component {
   }
 
   messages(mensajes) {
-    this.setState({messages: mensajes});
+    this.setState({messages: mensajes.reverse()});
   }
 
   newMessage(message) {
@@ -51,8 +50,8 @@ class ChatRoom extends React.Component {
       });
     }; */   
     this.setState({
-      messages : [...this.state.messages, message]
-    }); 
+      messages : [message, ...this.state.messages]
+    });
   }
 
   onRefresh = () => {
@@ -65,9 +64,24 @@ class ChatRoom extends React.Component {
     return new Date(date.slice(0, 10) + "T" +date.slice(11, 19))
   }
 
+  renderMessage = (message) => {
+    return (
+        {
+          _id: message.id,
+          text: message.contenido,
+          createdAt: this.setDate(message.fecha),
+          user: {
+            _id: message.autor === this.props.username ? 1 : 2,
+          },
+          sent: true,
+          received: true,
+          pending: true
+        }
+      ) 
+  };
+
   renderMessages = (messages) => {
     if (messages != undefined) {
-      messages.reverse();
       return messages.map((message) => (
         {
           _id: message.id,
@@ -97,6 +111,48 @@ class ChatRoom extends React.Component {
     });
   }
 
+  renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#694fad',
+          },
+          left: {
+            backgroundColor: '#0985',
+          },
+        }}
+        textStyle={{
+          right: {
+            color: '#fff',
+          },          
+        }}
+      />
+    );
+  }
+
+  scrollToBottomComponent = () => {
+    return(
+      <Ionicons name="arrow-down-circle" size={22} />
+    )
+  }
+
+  renderSend = (props) => {
+    return (
+      <Send {...props}>
+        <View>
+          <Ionicons
+            name="send"
+            style={{marginBottom: 5, marginRight: 5}}
+            size={32}
+            color="#694fad"
+          />
+        </View>
+      </Send>
+    )
+  }
+
   render () {
     return (
       <GiftedChat
@@ -105,6 +161,12 @@ class ChatRoom extends React.Component {
         user={{
           _id: 1,
         }}
+        renderBubble={this.renderBubble}
+        scrollToBottom
+        scrollToBottomComponent={this.scrollToBottomComponent}
+        placeholder='Escriba su mensaje...'
+        alwaysShowSend
+        renderSend={this.renderSend}
       />    
     )  
   };
@@ -125,21 +187,3 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatRoom);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 3,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  message: {
-    flex:1,
-    textAlign: 'center',
-    margin: 10,
-    backgroundColor: '#f222',
-    color: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
-});

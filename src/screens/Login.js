@@ -1,14 +1,5 @@
 import React from 'react';
-import { 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    TextInput,
-    Platform,
-    StyleSheet ,
-    StatusBar,
-    Alert
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Platform, StyleSheet, StatusBar, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -17,18 +8,14 @@ import { authLogin } from '../redux/actions/auth';
 
 const Login = ({navigation}) => {
 
-  const { username, token, error, loading } = useSelector(state => state.authReducer);
+  const { token, error, loading } = useSelector(state => state.authReducer);
   const dispatch = useDispatch();
 
-  const checkToken = () => {
-    if (token != null) {
-      navigation.navigate('Main');
-    }
-  }
-
   React.useEffect(() => {
-    checkToken();
-  }, [])
+    if (token != null) {
+      navigation.navigate('Home');
+    }
+  })
 
   const [data, setData] = React.useState({
     username: '',
@@ -72,13 +59,12 @@ const Login = ({navigation}) => {
       Alert.alert('Atención!', 'Escriba su usuario y contraseña.')
     } else {
       dispatch(authLogin(data.username, data.password));
-      checkToken();
     }
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor='#009387' barStyle='light-content' />
+      <StatusBar backgroundColor='#009d93' barStyle='light-content' />
       <View style={styles.header}>
         <Text style={styles.text_header}>Bienvenido!</Text>
       </View>
@@ -86,9 +72,9 @@ const Login = ({navigation}) => {
         <Text style={styles.text_footer}>Usuario</Text>
         <View style={styles.action}>
           <Ionicons name="person"/>
-          <TextInput onChangeText={(value)=> textInputChange(value)} placeholder={username ? username : 'nombre de usuario...'} style={styles.textInput} autoCapitalize='none'/>
+          <TextInput onChangeText={(value)=> textInputChange(value)} placeholder='nombre de usuario...' style={styles.textInput} autoCapitalize='none'/>
           { data.check_textInputChange ?
-          <Ionicons style={{color: '#009387'}} name="checkmark-circle-outline" />
+          <Ionicons style={{color: '#009d93'}} name="checkmark-circle-outline" />
           : null}
         </View>
         <Text style={[styles.text_footer, { marginTop: 35 }]}>Contraseña</Text>
@@ -107,14 +93,13 @@ const Login = ({navigation}) => {
         <View style={styles.button}>
           <TouchableOpacity style={styles.signIn}
             onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.textSign}>Registrarse</Text> 
+            <Text style={styles.textSign}>No tengo cuenta, registrarme</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.button}>
           <TouchableOpacity style={styles.signIn}
             onPress={() => navigation.navigate('Main')}>
-            <Text style={styles.textSign}>Cancelar</Text> 
-            <Ionicons name="arrow-back"/>
+            <Text style={styles.textSign}>Seguir sin registrarme</Text>            
           </TouchableOpacity>
         </View>
       </View>
@@ -127,7 +112,7 @@ export default Login;
 const styles = StyleSheet.create ({
   container: {
     flex: 1, 
-    backgroundColor: '#009387'
+    backgroundColor: '#009d93'
   },
   header: {
       flex: 1,
@@ -181,14 +166,16 @@ const styles = StyleSheet.create ({
       marginTop: 50
   },
   signIn: {
-      width: '100%',
-      height: 50,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 10
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#009d93',
+    borderRadius: 10
   },
   textSign: {
       fontSize: 18,
+      color: '#fff',
       fontWeight: 'bold'
   }
 })

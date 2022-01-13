@@ -1,62 +1,54 @@
 import React from 'react';
 import { connect } from "react-redux";
-import { StyleSheet, Text, View, TouchableOpacity, RefreshControl, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, RefreshControl, ScrollView, Image, ActivityIndicator, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useSelector, useDispatch } from 'react-redux';
-import WebSocketInstance from '../../websocket';
 import * as actions from '../../redux/actions/chat';
-import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
+import { HOST_URL } from "../../setting";
 
 class Contactos extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = {refreshing: false, contacts: []}
-    /* WebSocketInstance.connect('usuarios');
-    this.waitForSocketConnection(() => {
-      WebSocketInstance.addCallbacks(
-        this.setContacts.bind(this));
-      WebSocketInstance.chats_list('iVan');
-    }) */
-    this.getChatsList();
+    this.state = {refreshing: false, loading: true, contacts: []}    
+    this.setChatsList();
   }
 
-  /* waitForSocketConnection(callback) {
-    const component = this;
-    setTimeout(
-      function() {
-        if (WebSocketInstance.state() === 1) {
-          console.log('conexion segura');
-          if (callback != null) {
-            callback();
-            return;
-          }
-        } else {
-          console.log('esperando conexion');
-          component.waitForSocketConnection(callback);
-        }
-      }, 100);    
-  } */
-
-  setContacts(contacts) {
-    this.setState({ contacts: contacts});
-    this.saveChatsList(contacts);
-  }
-
-  getChatsList = async () => {
+  async setChatsList () {
     try {
-      var chats_list = await AsyncStorage.getItem('chats_list')
+      var chats_list = await AsyncStorage.getItem('chats_list');
       if (chats_list != null) {
         chats_list = JSON.parse(chats_list);
-        this.setState({contacts : chats_list});
+        this.setState({contacts: chats_list, loading: false});
+        try {
+          const response = await fetch(`${ HOST_URL }/api/chat/contactos/${ this.props.username }/`);
+          const json = await response.json();          
+          if (chats_list.length != json.chats_list.length) {
+            this.saveChatsList(json.chats_list);
+            this.setState({contacts: json.chats_list});
+          }
+        } catch (error) {
+          console.log(error);
+        };
       } else {
-        return
+        try {
+          const response = await fetch(`${ HOST_URL }/api/chat/contactos/${ this.props.username }/`);
+          const json = await response.json();
+          this.saveChatsList(json.chats_list);
+          this.setState({contacts: json.chats_list});
+        } catch (error) {
+          console.log(error);
+        }
       }
     } catch(e) {
       console.log(e)
     }
-  }
+  };
+
+  setContacts(contacts) {
+    this.setState({ contacts: contacts});
+    this.saveChatsList(contacts);
+  }  
 
   saveChatsList = async (chats_list) => {
     try {
@@ -68,13 +60,13 @@ class Contactos extends React.Component {
   }
   
   chatRoom = (chatId, contacto) => {
-    this.props.updateChatDetails(chatId, contacto);
+    this.props.updateChatDetails(chatId, contacto);    
     this.props.navigation.navigate('ChatRoom');
   }
 
   onRefresh = () => {
     this.setState({ refreshing: true});
-    WebSocketInstance.chats_list(this.props.username);
+    this.setChatsList();
     this.setState({ refreshing: false});
   };
 
@@ -93,9 +85,9 @@ class Contactos extends React.Component {
             <View style={styles.textSection}>
               <View style={styles.userInfoText}>
                 <Text style={styles.username}>{contact.contacto}</Text>
-                <Text style={styles.postTime}>{contact.mensajes_nuevos}</Text>
+                <Text style={styles.postTime}>"0"</Text>
               </View>
-              <Text style={styles.messageText}>{contact.ultimo_mensaje}</Text>
+              <Text style={styles.messageText}>"mensaje aqui"</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -106,9 +98,14 @@ class Contactos extends React.Component {
   };
 
   render() {
+    const { loading, contacts } = this.state;
+    const token = this.props.token;
     return (
       <View style={styles.container}>
-        <ScrollView
+      <StatusBar backgroundColor='#694fad' barStyle='light-content' />
+        { token ?
+        loading ? <ActivityIndicator size="large" /> : (
+          <ScrollView
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -116,8 +113,18 @@ class Contactos extends React.Component {
             />
           }
         >
-          {this.renderContacts(this.state.contacts)}
+          {this.renderContacts(contacts)}
         </ScrollView>
+        )
+        :
+        <View style={styles.container}>
+          <Text>Debe autenticarse para user el chat!</Text>
+          <TouchableOpacity style={{marginTop: 30}}
+            onPress={() => this.props.navigation.navigate('Login')}>
+            <Text>Entrar!</Text>
+          </TouchableOpacity>
+        </View>
+        }        
       </View> 
     );
   }
@@ -144,6 +151,7 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#ffffff',
   },
   card: {
