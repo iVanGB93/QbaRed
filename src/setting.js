@@ -1,4 +1,4 @@
-let DEBUG = false;
+let DEBUG = true;
 let HOST_URL = "https://qbared.com";
 let SOCKET_URL = "wss://qbared.com";
 if (DEBUG) {
