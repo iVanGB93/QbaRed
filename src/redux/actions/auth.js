@@ -79,10 +79,11 @@ export const authLogin = (username, password) => {
             if (token) {
                 saveData(username, token);
                 dispatch(authSuccess(username, token));
+            } else if (data.non_field_errors) {
+                dispatch(authFail("Credenciales incorrectas."));
             } else {
-                dispatch(authFail(error));
-                console.log(error);
-            }   
+                dispatch(authFail("Ocurrió un error en la obtención del token."));
+            }  
         })
         .catch((error) => {
             dispatch(authFail(error));

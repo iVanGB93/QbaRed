@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/actions/auth';
@@ -8,8 +9,13 @@ export default function Home({navigation}) {
   const { username, token } = useSelector(state => state.authReducer);
   const dispatch = useDispatch();
 
-  const probando = () => {
-    console.log(username, token)
+  const probando = async () => {
+    try {
+      await AsyncStorage.removeItem('messages_2');      
+    } catch(e) {
+      console.log(e)
+    }
+    console.log(username, token);
   }
 
   return (

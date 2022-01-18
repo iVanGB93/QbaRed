@@ -35,7 +35,7 @@ class Usuarios extends React.Component {
           const response = await fetch(`${ HOST_URL }/api/chat/new_chat/${this.props.username}/${this.props.username}/`);
           const json = await response.json();          
           this.saveUsersList(json.users_list);
-          this.setState({users: json.users_list});
+          this.setState({users: json.users_list, loading: false});
         } catch (error) {
           console.log(error);
         };
@@ -110,10 +110,14 @@ class Usuarios extends React.Component {
     const { loading, users } = this.state;
     const token = this.props.token;
     return (
+      loading ? 
+      <View style={styles.containerActivity}>
+        <ActivityIndicator size="large" color='#694fad' />
+      </View>
+      :
       <View style={styles.container}>
       <StatusBar backgroundColor='#694fad' barStyle='light-content' />
-        { token ? 
-         loading ? <ActivityIndicator size="large" /> : (
+        { token ?          
           <ScrollView
           refreshControl={
             <RefreshControl
@@ -123,8 +127,7 @@ class Usuarios extends React.Component {
           }
         >
           {this.renderUsers(users)}
-        </ScrollView>
-        )  
+        </ScrollView>        
         :
         <View style={styles.container}>
           <Text>Debe autenticarse para user el chat!</Text>
@@ -162,6 +165,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#ffffff',
+  },
+  containerActivity: {
+    flex: 1, 
+    backgroundColor: '#0034',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   card: {
     

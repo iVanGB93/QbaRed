@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, Platform, StyleSheet, StatusBar, Alert } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { authLogin } from '../redux/actions/auth';
+import { authFail, authLogin } from '../redux/actions/auth';
 
 
 const Login = ({navigation}) => {
@@ -12,6 +13,10 @@ const Login = ({navigation}) => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    if (error != null) {
+      Alert.alert('Error!', String(error));
+      dispatch(authFail(null));
+    };
     if (token != null) {
       navigation.navigate('Home');
     }
@@ -63,12 +68,17 @@ const Login = ({navigation}) => {
   }
 
   return (
+    loading ? 
+    <View style={styles.containerActivity}>
+      <ActivityIndicator size="large" color='#009d93' />
+    </View>
+    :
     <View style={styles.container}>
       <StatusBar backgroundColor='#009d93' barStyle='light-content' />
       <View style={styles.header}>
         <Text style={styles.text_header}>Bienvenido!</Text>
-      </View>
-      <View style={styles.footer}>
+      </View>     
+      <View style={styles.footer}>        
         <Text style={styles.text_footer}>Usuario</Text>
         <View style={styles.action}>
           <Ionicons name="person"/>
@@ -93,13 +103,13 @@ const Login = ({navigation}) => {
         <View style={styles.button}>
           <TouchableOpacity style={styles.signIn}
             onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.textSign}>No tengo cuenta, registrarme</Text>
+            <Text style={styles.textSign}>No tengo cuenta, crear una</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.button}>
           <TouchableOpacity style={styles.signIn}
             onPress={() => navigation.navigate('Main')}>
-            <Text style={styles.textSign}>Seguir sin registrarme</Text>            
+            <Text style={styles.textSign}>Continuar sin registrarme</Text>            
           </TouchableOpacity>
         </View>
       </View>
@@ -113,6 +123,12 @@ const styles = StyleSheet.create ({
   container: {
     flex: 1, 
     backgroundColor: '#009d93'
+  },
+  containerActivity: {
+    flex: 1, 
+    backgroundColor: '#0034',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
       flex: 1,

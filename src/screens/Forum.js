@@ -4,7 +4,7 @@ export default function Forum () {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor='#09dd' barStyle='light-content' />
-      <ActivityIndicator size="large" color='#fff2' />
+      <ActivityIndicator size="large" color='#09dd' />
     </View>
   );
 }

@@ -42,26 +42,14 @@ class WebSocketService {
         const command = parsedData.accion;
         if (Object.keys(this.callbacks).length === 0) {
             return;
-        }
-        if (command === "chats") {
-            this.callbacks[command](parsedData.chats_list);
-        }
+        }        
         if (command === "mensajes") {
             this.callbacks[command](parsedData.mensajes);
         }
         if (command === "mensaje_nuevo") {
             this.callbacks[command](parsedData.mensaje);
         }
-    }
-    
-    chats_list(username) {
-        this.sendMessage({
-            'accion': 'chats',
-            'data': {
-                'usuario': username
-            }
-        })
-    }
+    }    
 
     messages(username, chat_id) {
         this.sendMessage({
@@ -73,8 +61,7 @@ class WebSocketService {
         })
     }
 
-    addCallbacks(chats_list, mensajes, mensaje) {
-        this.callbacks["chats"] = chats_list;
+    addCallbacks(mensajes, mensaje) {
         this.callbacks["mensajes"] = mensajes;
         this.callbacks["mensaje_nuevo"] = mensaje;
     }

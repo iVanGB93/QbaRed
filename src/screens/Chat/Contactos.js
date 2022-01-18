@@ -70,6 +70,22 @@ class Contactos extends React.Component {
     this.setState({ refreshing: false});
   };
 
+  getLastMessage = async (id) => {
+    try {
+      var messages = await AsyncStorage.getItem(`messages_${ id }`);
+      if (messages != null) {
+        messages = JSON.parse(messages);
+        messages = messages.find(element => element.user._id === 2);
+        console.log("mensaje", messages);
+        return messages
+      } else {
+        return null
+      }
+    } catch (e) {
+      console.log("Error con last message", e)
+    }
+  }
+
   renderContacts = contacts => {
     if (contacts != undefined) {
       return contacts.map((contact) => (
@@ -85,9 +101,9 @@ class Contactos extends React.Component {
             <View style={styles.textSection}>
               <View style={styles.userInfoText}>
                 <Text style={styles.username}>{contact.contacto}</Text>
-                <Text style={styles.postTime}>"0"</Text>
+                <Text style={styles.postTime}>fecha</Text>
               </View>
-              <Text style={styles.messageText}>"mensaje aqui"</Text>
+              <Text style={styles.messageText}>Ultimo mensaje</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -101,10 +117,14 @@ class Contactos extends React.Component {
     const { loading, contacts } = this.state;
     const token = this.props.token;
     return (
+      loading ? 
+      <View style={styles.containerActivity}>
+        <ActivityIndicator size="large" color='#694fad' />
+      </View>
+      :
       <View style={styles.container}>
       <StatusBar backgroundColor='#694fad' barStyle='light-content' />
-        { token ?
-        loading ? <ActivityIndicator size="large" /> : (
+        { token ?         
           <ScrollView
           refreshControl={
             <RefreshControl
@@ -114,8 +134,7 @@ class Contactos extends React.Component {
           }
         >
           {this.renderContacts(contacts)}
-        </ScrollView>
-        )
+        </ScrollView>        
         :
         <View style={styles.container}>
           <Text>Debe autenticarse para user el chat!</Text>
@@ -154,6 +173,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff',
   },
+  containerActivity: {
+    flex: 1, 
+    backgroundColor: '#0034',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   card: {
     
   },
@@ -164,7 +189,7 @@ const styles = StyleSheet.create({
   textSection: {
     flexDirection: 'column',
     justifyContent: 'center',
-    padding: 15,
+    padding: 10,
     paddingLeft: 0,
     marginLeft: 10,
     width: 300,
