@@ -67,6 +67,7 @@ class Usuarios extends React.Component {
       const json = await response.json();
       const chat_id = json.chat_id;
       this.props.updateChatDetails(chat_id, contact);    
+      this.setState({loading: false});
       this.props.navigation.navigate('ChatRoom');
     } catch (error) {
       console.log(error);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from "react-redux";
 import { GiftedChat, Bubble, Send } from 'react-native-gifted-chat';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -12,7 +12,13 @@ class ChatRoom extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {loading: true, refreshing: false, messages: []};
+    this.state = {
+      waitConexionTime: 0,
+      connected: false,
+      loading: true,
+      refreshing: false,
+      messages: [],
+    };
     WebSocketInstance.connect(this.props.chatId);
     this.setMessages();
     this.waitForSocketConnection(() => {
@@ -26,18 +32,22 @@ class ChatRoom extends React.Component {
   waitForSocketConnection(callback) {
     const component = this;
     setTimeout(
-      function() {
+      () => {
         if (WebSocketInstance.state() === 1) {
           console.log('conexion segura');
           if (callback != null) {
             callback();
+            this.setState({waitConexionTime: 0, connected: true});
             return;
           }
         } else {
           console.log('esperando conexion');
+          var timeOut = this.state.waitConexionTime * 3;
+          this.setState({waitConexionTime: timeOut, connected: false});
+          console.log(this.state.waitConexionTime);
           component.waitForSocketConnection(callback);
         }
-      }, 100);    
+      }, this.state.waitConexionTime);    
   }
 
   async setMessages() {
@@ -191,11 +201,25 @@ class ChatRoom extends React.Component {
       </View>
       :
       <View style={styles.container}>
-        <View style={styles.contacto}>
-          <View style={styles.userImageWrapper}>
-            <Image source={require('../../../assets/defaultUserImage.jpg')} style={styles.userImage}></Image>
+        <View style={styles.contactBar}>
+          <View style={styles.contact}>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}>
+              <Ionicons style={styles.icons} name='arrow-back-outline' size={20}/>
+            </TouchableOpacity>            
+            <View style={styles.userImageWrapper}>
+              <Image source={require('../../../assets/defaultUserImage.jpg')} style={styles.userImage}></Image>
+            </View>
+            <Text style={styles.text}>{this.props.contacto}</Text>
           </View>
-          <Text style={styles.text}>{this.props.contacto}</Text>
+          <View style={styles.conexionStatus}>
+            {this.state.connected ? 
+            <Ionicons style={styles.icons} name='checkmark-circle-outline' size={20} color={'#009d93'}/>
+            :
+            <Ionicons style={styles.icons} name='alert-circle-outline' size={20} color={'#d02860'}/>
+            }
+            <Ionicons style={styles.icons} name='options-outline' size={20}/>
+          </View>
         </View>
         <GiftedChat
           messages={this.state.messages}
@@ -245,19 +269,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  contacto: {
+  contactBar: {
     flexDirection: 'row',
     width: '100%',
     height: 50,
     backgroundColor: '#0034',
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderBottomColor : '#000',
     borderBottomWidth: 2
   },
+  contact: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   text: {
     color: '#694fad',
-    marginLeft: 5,
     fontSize: 20,
+    marginLeft: 5,
   },
   userImageWrapper: {
     paddingTop: 5,
@@ -268,5 +297,12 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 25,
-  }
+  },
+  conexionStatus: {
+    flexDirection: 'row',
+    marginRight: 5,
+  },
+  icons: {
+    margin: 10,
+  },
 })
