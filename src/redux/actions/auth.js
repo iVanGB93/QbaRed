@@ -73,7 +73,7 @@ async function postData(url = '', data = {}) {
 export const authLogin = (username, password) => {
     return dispatch => {
         dispatch(authStart());       
-        postData('http://172.20.24.10:8000/api/users/auth/login/', { username: username, password: password })
+        postData('http://10.0.0.98:8000/api/users/auth/login/', { username: username, password: password })
         .then(data => {
             const token = data.key;
             if (token) {
